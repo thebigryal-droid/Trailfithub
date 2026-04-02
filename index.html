@@ -6,224 +6,54 @@
     <title>Ryal FitHub | Pro Engine</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { 
-            --primary: #c3f53c; 
-            --primary-dark: #a2d620;
-            --bg: #f4f5f7; 
-            --card: #ffffff; 
-            --text: #0f172a; 
-            --text-muted: #64748b;
-            --border: #e2e8f0; 
-            --danger: #ef4444; 
-            --info: #3b82f6; 
-            --warning: #f59e0b; 
-            --vip: #0f172a; 
-        }
-        
-        body.dark-mode { 
-            --bg: #09090b; 
-            --card: #141417; 
-            --text: #f8fafc; 
-            --text-muted: #94a3b8;
-            --border: #27272a; 
-            --vip: #ffffff;
-        }
-        
-        body { margin:0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 0; transition: background 0.4s ease, color 0.4s ease; overflow-x: hidden; }
-        
-        /* Cloud Loader */
-        #cloudLoader { position: fixed; inset: 0; background: var(--bg); z-index: 50000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text); font-weight: 800; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; transition: opacity 0.4s; }
+        :root { --primary: #c3f53c; --primary-dark: #a2d620; --bg: #f4f5f7; --card: #ffffff; --text: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --danger: #ef4444; --info: #3b82f6; --warning: #f59e0b; }
+        body.dark-mode { --bg: #09090b; --card: #141417; --text: #f8fafc; --text-muted: #94a3b8; --border: #27272a; }
+        body { margin:0; background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; padding: 0; transition: background 0.4s, color 0.4s; overflow-x: hidden; }
+        #cloudLoader { position: fixed; inset: 0; background: var(--bg); z-index: 50000; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; }
         .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
-
-        #appContainer { padding: 20px 15px 80px; display: none; animation: fadeIn 0.5s ease-out forwards; }
-
-        header { text-align: center; margin-bottom: 25px; padding-top: 10px; }
-        header h1 { font-size: 26px; font-weight: 800; color: var(--text); margin: 0; letter-spacing: -0.5px; }
-        .trainer-badge { display: inline-block; background: rgba(195, 245, 60, 0.2); color: var(--primary-dark); padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; border: 1px solid rgba(195, 245, 60, 0.3); }
-        body.dark-mode .trainer-badge { color: var(--primary); }
-
-        .icon { width: 14px; height: 14px; vertical-align: middle; margin-right: 5px; margin-top: -2px; }
-        .icon-lg { width: 18px; height: 18px; vertical-align: middle; }
-
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        
-        /* AUTH SCREEN */
-        #authView { position: fixed; inset: 0; background: linear-gradient(-45deg, #09090b, #1e1e24, #0f172a, #000000); background-size: 400% 400%; animation: gradientBG 15s ease infinite; z-index: 20000; display: none; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
-        .auth-card { background: rgba(20, 20, 23, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 30px 20px; width: 100%; max-width: 360px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); text-align: center; animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); margin: auto; }
-        .auth-card h2 { color: #ffffff; font-size: 28px; margin: 0 0 5px 0; justify-content: center; letter-spacing: -1px; }
-        .auth-card p { color: #94a3b8; font-size: 13px; margin-bottom: 25px; line-height: 1.5; }
-        .auth-input-group { text-align: left; margin-bottom: 12px; }
-        .auth-input-group label { color: #cbd5e1; font-size: 10px; margin-bottom: 5px; display:block; text-transform: uppercase; font-weight:800; }
-        .auth-input-group input, .auth-input-group select { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 14px; border-radius: 12px; font-size: 14px; margin-bottom: 0; width:100%; box-sizing:border-box; outline:none; }
-        .auth-input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(195, 245, 60, 0.1); }
-        .auth-grid { display: flex; gap: 10px; }
-        
-        #loginBlock { display: block; }
-        #setupBlock { display: none; }
-
-        /* MODAL */
-        #ryalModalOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 30000; align-items: center; justify-content: center; backdrop-filter: blur(6px); animation: fadeIn 0.2s; }
-        .ryal-modal { background: var(--card); padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: center; animation: fadeUp 0.3s ease-out; }
-        .ryal-modal h3 { margin: 0 0 10px 0; font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
-        .ryal-modal p { font-size: 14px; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
-        .modal-btns { display: flex; gap: 10px; }
-        
-        /* APP UI */
-        .section { background: var(--card); border-radius: 16px; padding: 18px; margin-bottom: 18px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .section:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
-        
+        #appContainer { padding: 20px 15px 80px; display: none; }
+        header { text-align: center; margin-bottom: 25px; }
+        .trainer-badge { display: inline-block; background: rgba(195, 245, 60, 0.2); color: var(--primary-dark); padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .section { background: var(--card); border-radius: 16px; padding: 18px; margin-bottom: 18px; border: 1px solid var(--border); }
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 25px; }
-        .stat-card { background: var(--card); padding: 18px 8px; border-radius: 16px; text-align: center; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: all 0.3s ease; position: relative; overflow: hidden; }
-        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--primary); opacity: 0; transition: opacity 0.3s; }
-        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 25px rgba(0,0,0,0.08); border-color: var(--border); }
-        .stat-card:hover::before { opacity: 1; }
-        .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
-        .stat-val { display: block; font-size: 18px; font-weight: 800; color: var(--text); margin-top: 8px; letter-spacing: -0.5px; }
-
-        h2 { font-size: 12px; text-transform: uppercase; color: var(--text); display: flex; justify-content: space-between; cursor: pointer; margin: 0; letter-spacing: 1px; align-items: center; font-weight: 800; }
-        h2 .chevron { width: 16px; height: 16px; color: var(--text-muted); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .collapsible { display: none; padding-top: 18px; margin-top: 15px; border-top: 1px solid var(--border); animation: fadeIn 0.3s; }
+        .stat-card { background: var(--card); padding: 18px 8px; border-radius: 16px; text-align: center; border: 1px solid var(--border); }
+        .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; }
+        .stat-val { display: block; font-size: 18px; font-weight: 800; margin-top: 8px; }
+        h2 { font-size: 12px; text-transform: uppercase; display: flex; justify-content: space-between; cursor: pointer; font-weight: 800; }
+        .collapsible { display: none; padding-top: 18px; margin-top: 15px; border-top: 1px solid var(--border); }
         .active .collapsible { display: block; }
-        .active h2 .chevron { transform: rotate(180deg); color: var(--primary); }
-
-        input, select, textarea { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 12px; font-size: 14px; margin-bottom: 12px; box-sizing: border-box; background: var(--bg); color: var(--text); outline: none; font-family: inherit; transition: all 0.3s ease; font-weight: 500; }
-        input:focus, select:focus { border-color: var(--primary); background: var(--card); box-shadow: 0 0 0 4px rgba(195, 245, 60, 0.15); transform: translateY(-1px); }
-        label { font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        button { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 14px; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); letter-spacing: 0.3px; }
-        button:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
-        button:active { transform: scale(0.97); box-shadow: none; }
-        
-        .btn-main { background: var(--primary); color: #0f172a; box-shadow: 0 4px 10px rgba(195, 245, 60, 0.2); }
+        input, select { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; background: var(--bg); color: var(--text); outline: none; }
+        button { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-main { background: var(--primary); color: #0f172a; }
+        .btn-sub { background: var(--bg); color: var(--text); font-size: 12px; border: 1px solid var(--border); padding: 10px 14px; width: auto; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-info { background: var(--info); color: white; }
-        .btn-wa { background: #10b981; color: white; margin-bottom: 8px; }
-        .btn-pdf { background: var(--text); color: var(--card); margin-bottom: 8px; }
-        .btn-sub { background: var(--bg); color: var(--text); font-size: 12px; border: 1px solid var(--border); padding: 10px 14px; width: auto; font-weight: 700; }
-        .btn-action { background: transparent; color: var(--info); border: 1px solid var(--info); padding: 6px 10px; font-size: 11px; border-radius: 8px; width: auto; font-weight: 700; margin-left: 5px;}
-        .btn-action.danger { color: var(--danger); border-color: var(--danger); }
-
-        table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        th { text-align: left; font-size: 11px; color: var(--text-muted); padding-bottom: 12px; text-transform: uppercase; font-weight: 800; border-bottom: 1px solid var(--border); }
-        td { padding: 14px 5px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 600; }
-        .client-link { color: var(--text); font-weight: 800; cursor: pointer; text-decoration: none; display: flex; align-items: center; transition: color 0.2s; }
-        .client-link:hover { color: var(--info); }
-        
-        .history-pane { background: var(--bg); padding: 12px; border-radius: 12px; border: 1px solid var(--border); margin-top: 5px; font-size: 13px; }
-        .history-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); transition: background 0.2s; }
-        .history-row:hover { background: rgba(0,0,0,0.03); }
-        body.dark-mode .history-row:hover { background: rgba(255,255,255,0.03); }
-
-        #clientOverlay { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 5000; padding: 20px; overflow-y: auto; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .plan-box { background: var(--card); padding: 18px; border-radius: 14px; font-size: 14px; line-height: 1.5; color: var(--text); margin-top: 10px; border: 1px solid var(--primary); box-shadow: 0 4px 15px rgba(195, 245, 60, 0.05); }
-        
-        .ex-tag { background: var(--bg); color: var(--text); padding: 10px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid var(--border); transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 600; }
-        .ex-tag:hover { transform: scale(1.05); border-color: var(--primary); }
-        .ex-tag.active { background: var(--primary); color: #0f172a; border-color: var(--primary); transform: scale(1.05); box-shadow: 0 4px 10px rgba(195, 245, 60, 0.3); }
-        
-        .set-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; background: var(--bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); }
-        .set-label { font-size: 11px; font-weight: 800; color: var(--text-muted); width: 40px; text-transform: uppercase; }
-        .set-input { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; margin-bottom: 0; background: var(--card); color: var(--text); outline: none; flex: 1; text-align: center; }
-
-        .rev-month { font-weight: 800; font-size: 16px; margin-top: 15px; display: flex; justify-content: space-between; align-items:center; border-bottom: 1px solid var(--border); padding-bottom: 10px; color: var(--text); transition: all 0.2s; }
-        .rev-month:hover { opacity: 0.8; }
-        .rev-split { display: flex; gap: 15px; font-size: 12px; margin-top: 10px; color: var(--text-muted); flex-wrap: wrap; font-weight: 600; }
-        
-        .badge { font-size: 9px; padding: 4px 8px; border-radius: 6px; font-weight: 800; margin-left: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
-        .badge.warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
-        .badge.danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
-        .badge.info { background: rgba(59, 130, 246, 0.1); color: var(--info); border: 1px solid rgba(59, 130, 246, 0.3); }
-
-        #restTimerUI { display: none; position: fixed; bottom: 20px; right: 20px; background: var(--text); color: var(--card); padding: 14px 24px; border-radius: 30px; font-size: 20px; font-weight: 800; box-shadow: 0 15px 30px rgba(0,0,0,0.3); z-index: 9999; align-items: center; gap: 12px; animation: fadeUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.1); }
-        
-        #vipPortal { display: none; background: var(--bg); color: var(--text); min-height: 100vh; padding: 40px 20px; }
-        .vip-card { background: var(--card); border-radius: 20px; padding: 25px; margin-bottom: 25px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.03); animation: fadeUp 0.5s ease-out forwards; }
-        .gallery-grid { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 25px; padding-top: 15px; margin-top: 10px; scroll-behavior: smooth; align-items: center; }
-        .gallery-item { flex: 0 0 130px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 6px; position: relative; transition: all 0.3s; }
-        .gallery-item:hover { transform: translateY(-5px); border-color: var(--primary); z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .gallery-img { width: 100%; height: 130px; object-fit: cover; border-radius: 8px; }
-        .gallery-date { font-size: 10px; font-weight: 800; color: var(--text-muted); text-align: center; margin-top: 8px; }
-        .gallery-del { position: absolute; top: -10px; right: -10px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); }
-        .gallery-del:hover { transform: scale(1.15); }
-
-        footer.app-footer { text-align: center; padding: 30px 10px 20px; font-size: 11px; color: var(--text-muted); margin-top: 30px; border-top: 1px solid var(--border); letter-spacing: 1px; text-transform: uppercase; font-weight: 800; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap:wrap; }
+        .history-pane { background: var(--bg); padding: 12px; border-radius: 12px; border: 1px solid var(--border); margin-top: 5px; }
+        .history-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        #authView { position: fixed; inset: 0; background: #09090b; z-index: 20000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { background: #141417; border: 1px solid #27272a; border-radius: 24px; padding: 30px 20px; width: 100%; max-width: 360px; text-align: center; }
+        .auth-grid { display: flex; gap: 10px; }
+        #clientOverlay { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 5000; padding: 20px; overflow-y: auto; }
+        footer.app-footer { text-align: center; padding: 30px 10px; font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--border); font-weight: 800; }
     </style>
 </head>
 <body id="mainBody" class="dark-mode">
 
-<script>
-    window.onerror = function(message, source, lineno, colno, error) {
-        alert("SYSTEM ERROR: " + message + "\nLine: " + lineno);
-        const loader = document.getElementById('cloudLoader');
-        if(loader) loader.style.display = 'none';
-    };
-</script>
-
-<div id="cloudLoader">
-    <div class="spinner"></div>
-    Authenticating & Syncing Cloud Data...
-</div>
-
-<div id="ryalModalOverlay">
-    <div class="ryal-modal">
-        <h3 id="modalTitle">Notice</h3>
-        <p id="modalText">Message</p>
-        <div id="modalBtns" class="modal-btns"></div>
-    </div>
-</div>
+<div id="cloudLoader"><div class="spinner"></div>Loading Ryal FitHub...</div>
 
 <div id="authView">
     <div class="auth-card" id="loginBlock">
-        <div style="width: 50px; height: 50px; background: var(--primary); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; box-shadow: 0 10px 20px rgba(195, 245, 60, 0.2);">
-            <i data-feather="cloud" style="color: #0f172a; width: 28px; height: 28px;"></i>
-        </div>
-        <h2>Ryal FitHub <span style="color:var(--primary);">Cloud</span></h2>
-        <p>The clinical OS for elite personal trainers. Sign in to sync your roster securely.</p>
-        
-        <button class="btn-main" onclick="ryalSignIn()" style="font-size: 15px; padding: 14px; width: 100%; display: flex; align-items: center; justify-content: center;">
-            <svg style="width:18px; height:18px; margin-right:10px;" viewBox="0 0 24 24"><path fill="#0f172a" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#0f172a" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#0f172a" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#0f172a" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            Sign in with Google
-        </button>
+        <h2 style="color:white">Ryal FitHub Cloud</h2>
+        <p style="color:#94a3b8">Sign in to sync your trainer profile.</p>
+        <button class="btn-main" onclick="ryalSignIn()">Sign in with Google</button>
     </div>
-
-    <div class="auth-card" id="setupBlock">
-        <h2>Setup Workspace</h2>
-        <p>Complete your profile to generate accurate analytics and revenue tracking.</p>
-        
-        <div class="auth-input-group">
-            <label>Full Name</label>
-            <input type="text" id="authName" placeholder="e.g. Abis Rizvi">
-        </div>
-        <div class="auth-input-group">
-            <label>Email Address</label>
-            <input type="email" id="authEmail" disabled style="opacity: 0.5;">
-        </div>
-        <div class="auth-grid">
-            <div class="auth-input-group" style="flex:1;">
-                <label>Contact No.</label>
-                <input type="tel" id="authPhone" placeholder="WhatsApp">
-            </div>
-            <div class="auth-input-group" style="flex:1;">
-                <label>Base Salary (₹)</label>
-                <input type="number" id="authSalary" placeholder="e.g. 10000">
-            </div>
-        </div>
-        <div class="auth-grid">
-            <div class="auth-input-group" style="flex:1;">
-                <label>Shift Start</label>
-                <input type="time" id="authIn" value="06:00">
-            </div>
-            <div class="auth-input-group" style="flex:1;">
-                <label>Shift End</label>
-                <input type="time" id="authOut" value="14:00">
-            </div>
-        </div>
-        
-        <button class="btn-main" onclick="saveTrainerProfile()" style="margin-top: 10px; font-size: 15px; padding: 16px;">Launch Workspace <i data-feather="arrow-right" style="margin-left:8px;"></i></button>
+    <div class="auth-card" id="setupBlock" style="display:none">
+        <h2 style="color:white">Trainer Setup</h2>
+        <input type="text" id="authName" placeholder="Full Name">
+        <input type="number" id="authSalary" placeholder="Monthly Salary (₹)">
+        <div class="auth-grid"><input type="time" id="authIn" value="06:00"><input type="time" id="authOut" value="14:00"></div>
+        <button class="btn-main" onclick="saveTrainerProfile()">Start Coaching</button>
     </div>
 </div>
 
@@ -231,13 +61,10 @@
     <header>
         <h1>Ryal FitHub</h1>
         <span class="trainer-badge" id="headerTrainerName">Portal</span>
-        <div style="margin-top: 18px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
-            <button class="btn-sub" onclick="toggleTheme()"><i data-feather="moon" class="icon"></i> Theme</button>
-            <button class="btn-sub" onclick="editTrainerProfile()"><i data-feather="user" class="icon"></i> Profile</button>
-            <button class="btn-sub" onclick="exportData()"><i data-feather="download" class="icon"></i> Backup</button>
-            <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
-            <button class="btn-sub" onclick="document.getElementById('importFile').click()"><i data-feather="upload" class="icon"></i> Restore</button>
-            <button class="btn-sub" onclick="ryalSignOut()" style="border-color:var(--danger); color:var(--danger);"><i data-feather="log-out" class="icon"></i> Logout</button>
+        <div style="margin-top:15px; display:flex; justify-content:center; gap:8px;">
+            <button class="btn-sub" onclick="toggleTheme()">Theme</button>
+            <button class="btn-sub" onclick="editTrainerProfile()">Profile</button>
+            <button class="btn-sub" onclick="ryalSignOut()">Logout</button>
         </div>
     </header>
 
@@ -248,137 +75,51 @@
     </div>
 
     <div class="section active" id="sec-plan">
-        <h2 onclick="toggleSec('sec-plan')"><span>Planner</span><i data-feather="chevron-down" class="chevron"></i></h2>
+        <h2 onclick="toggleSec('sec-plan')">Planner <i class="fa fa-chevron-down"></i></h2>
         <div class="collapsible">
-            <div id="planStats" style="display:flex; justify-content:space-between; margin-bottom:15px; font-weight:800;"><span>Planned Earning:</span><span id="planEarnings">₹0</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px"><span>Est. Earnings:</span><span id="planEarnings">₹0</span></div>
             <select id="planClient"></select>
             <div class="auth-grid"><input type="date" id="planDate"><input type="time" id="planTime"></div>
             <input type="text" id="planWorkout" placeholder="Workout focus">
-            <button class="btn-main" onclick="addPlan()">Schedule</button>
-            <div id="planList" class="history-pane" style="margin-top:10px;"></div>
+            <button class="btn-main" onclick="addPlan()">Schedule Session</button>
+            <div id="planList" class="history-pane"></div>
         </div>
     </div>
 
     <div class="section active" id="sec-rost">
-        <h2 onclick="toggleSec('sec-rost')"><span>Active Roster</span><i data-feather="chevron-down" class="chevron"></i></h2>
+        <h2 onclick="toggleSec('sec-rost')">Roster <i class="fa fa-chevron-down"></i></h2>
         <div class="collapsible">
-            <table id="rosterTable"><thead><tr><th>Client</th><th>Slot</th><th>Prog</th><th>Action</th></tr></thead><tbody id="rosterView"></tbody></table>
-        </div>
-    </div>
-
-    <div class="section" id="sec-leads">
-        <h2 onclick="toggleSec('sec-leads')"><span>Leads</span><i data-feather="chevron-down" class="chevron"></i></h2>
-        <div class="collapsible">
-            <div class="auth-grid"><input type="text" id="leadName" placeholder="Name"><input type="tel" id="leadContact" placeholder="Phone"></div>
-            <button class="btn-sub" style="width:100%" onclick="addLead()">Add Lead</button>
-            <div id="leadsList" style="margin-top:15px;"></div>
-        </div>
-    </div>
-
-    <div class="section" id="sec-att">
-        <h2 onclick="toggleSec('sec-att')"><span>Attendance</span><i data-feather="chevron-down" class="chevron"></i></h2>
-        <div class="collapsible">
-            <div class="auth-grid"><input type="date" id="attDate"><input type="time" id="attIn"><input type="time" id="attOut"></div>
-            <div class="auth-grid"><button class="btn-main" onclick="logAtt('Present')">Present</button><button class="btn-info" onclick="logAtt('Week Off')">Off</button><button class="btn-danger" onclick="logAtt('Absent')">Absent</button></div>
-            <div id="attList" class="history-pane" style="margin-top:10px;"></div>
-        </div>
-    </div>
-
-    <div class="section" id="sec-exp">
-        <h2 onclick="toggleSec('sec-exp')"><span>Expenses</span><i data-feather="chevron-down" class="chevron"></i></h2>
-        <div class="collapsible">
-            <div class="auth-grid"><input type="date" id="expDate"><select id="expCat"><option>Gym Rent</option><option>Supplements</option><option>Marketing</option></select></div>
-            <div class="auth-grid"><input type="text" id="expDesc" placeholder="Description"><input type="number" id="expAmt" placeholder="Amount"></div>
-            <button class="btn-sub" style="width:100%" onclick="addExpense()">Log Expense</button>
-            <div id="expList" class="history-pane" style="margin-top:10px;"></div>
-        </div>
-    </div>
-
-    <div class="section" id="sec-rev">
-        <h2 onclick="toggleSec('sec-rev')"><span>Revenue</span><i data-feather="chevron-down" class="chevron"></i></h2>
-        <div class="collapsible">
-            <div class="auth-grid"><input type="month" id="reportMonthInput"><button class="btn-pdf" onclick="generateMonthlyReportPDF()">Report</button></div>
-            <div id="revView"></div>
+            <table style="width:100%"><thead><tr><th>Name</th><th>Slot</th><th>Done</th><th>Action</th></tr></thead><tbody id="rosterView"></tbody></table>
         </div>
     </div>
 
     <div class="section" id="sec-prof">
-        <h2 onclick="toggleSec('sec-prof')"><span>New Client</span><i data-feather="chevron-down" class="chevron"></i></h2>
+        <h2 onclick="toggleSec('sec-prof')">Register Client <i class="fa fa-chevron-down"></i></h2>
         <div class="collapsible">
-            <input type="text" id="regName" placeholder="Full Name">
-            <div class="auth-grid"><input type="text" id="regReceipt" placeholder="Receipt"><input type="tel" id="regPhone" placeholder="Phone"></div>
-            <div class="auth-grid"><select id="regGender"><option>Male</option><option>Female</option></select><input type="text" id="regProf" placeholder="Profession"></div>
-            <div class="auth-grid"><input type="number" id="regAge" placeholder="Age"><input type="number" step="0.1" id="regHeight" placeholder="Height"></div>
-            <div class="auth-grid"><input type="time" id="regSlot"><input type="text" id="regMed" placeholder="Injuries"></div>
-            <div class="auth-grid"><select id="regLevel"><option>Beginner</option><option>Intermediate</option></select><input type="date" id="regStart"></div>
-            <div class="auth-grid"><input type="date" id="regEnd"><input type="number" id="regSess" placeholder="Sessions"></div>
-            <div class="auth-grid"><input type="number" id="regPay" placeholder="Package"><select id="regRet"><option value="0.4">40%</option><option value="0.5">50%</option></select></div>
-            <select id="regGst"><option value="0">0% GST</option><option value="0.18">18% GST</option></select>
-            <button class="btn-main" onclick="regClient()">Create Profile</button>
+            <input type="text" id="regName" placeholder="Client Name">
+            <div class="auth-grid"><input type="number" id="regSess" placeholder="Total Sessions"><input type="number" id="regPay" placeholder="Package Price"></div>
+            <input type="time" id="regSlot">
+            <button class="btn-main" onclick="regClient()">Add to Roster</button>
         </div>
     </div>
-    
-    <footer class="app-footer">Powered by Ryal FitHub | <span id="footerTrainerName"></span></footer>
+
+    <footer class="app-footer">RYAL FITHUB | <span id="footerTrainerName"></span></footer>
 </div>
 
 <div id="clientOverlay">
     <button class="btn-sub" onclick="document.getElementById('clientOverlay').style.display='none'">Back</button>
-    <div class="auth-grid" style="margin-top:20px;"><button class="btn-wa" onclick="sendWaReminder()">WhatsApp</button><button class="btn-pdf" onclick="generateProgressPDF()">Report</button></div>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-        <h1 id="ovName"></h1>
-        <button onclick="toggleGroup('clientMenu',this)"><i data-feather="more-vertical"></i></button>
-    </div>
-    <div id="clientMenu" style="display:none; background:var(--card); padding:10px; border-radius:10px; border:1px solid var(--border);">
-        <button class="btn-sub" onclick="showEditForm()">Edit</button>
-        <button class="btn-sub" onclick="generateVIPLink()">VIP Link</button>
-        <button class="btn-danger" onclick="deleteCurrentClient()">Delete</button>
-    </div>
-    <p id="ovTags"></p><p id="ovReceipt"></p>
-    <div id="ovMed"></div>
-
-    <div class="section active" id="ovEditForm" style="display:none;">
-        <input type="text" id="editName">
-        <div class="auth-grid"><select id="editGender"><option>Male</option><option>Female</option></select><input type="tel" id="editPhone"></div>
-        <div class="auth-grid"><input type="time" id="editSlot"><input type="number" id="editAge"></div>
-        <div class="auth-grid"><input type="number" step="0.1" id="editHeight"><input type="text" id="editReceipt"></div>
-        <div class="auth-grid"><input type="number" id="editSess"><input type="date" id="editEnd"></div>
-        <input type="text" id="editMed">
-        <button class="btn-info" onclick="saveClientEdit()">Save</button>
-    </div>
-
+    <h1 id="ovName" style="margin:20px 0 10px 0"></h1>
     <div class="section active">
-        <h2>BCA & Diet</h2>
-        <input type="date" id="bcaDate">
-        <div class="auth-grid"><input type="number" step="0.1" id="inWeight" placeholder="Weight"><input type="number" step="0.1" id="inSmm" placeholder="SMM"><input type="number" step="0.1" id="inPbf" placeholder="PBF%"></div>
-        <div class="auth-grid"><input type="number" id="inVisFat" placeholder="Visceral"><input type="number" id="inBmr" placeholder="BMR"></div>
-        <div class="auth-grid"><input type="number" step="0.1" id="inBmi" placeholder="BMI"><input type="number" id="inScore" placeholder="InBody"></div>
-        <select id="inActivity"><option value="1.2">Sedentary</option><option value="1.55">Active</option></select>
-        <div class="auth-grid"><button class="btn-info" onclick="saveBca()">Log BCA</button><button class="btn-main" onclick="generateSmartPlan()">AI Macros</button></div>
-        <div id="bcaHistory" class="history-pane"></div>
-        <div id="mealBuilderUI"></div>
-    </div>
-    <div id="scoutEngine" class="section active" style="display:none;"><h4>Protocol</h4><div id="ovScout"></div></div>
-    <div class="section active"><h2>Volume</h2><canvas id="tonnageChart"></canvas></div>
-    <div class="section active"><h2>Photos</h2><input type="file" onchange="uploadToGallery(event)"><div id="galleryGrid" class="gallery-grid"></div></div>
-    <div class="section active">
-        <h2>Workout</h2>
+        <h2>Record Workout</h2>
         <input type="date" id="logDate">
-        <input type="text" id="logWorkoutName" placeholder="Workout Name">
-        <select id="splitSelect" onchange="loadSplit(this.value)"><option value="">Templates</option><option>Pull (Back & Biceps)</option><option>Push (Chest, Shoulders, Triceps)</option><option>Legs (Quads, Hams, Glutes)</option><option>Core & Functional</option></select>
-        <div id="exTagsContainer"></div>
-        <input type="text" id="exSearch" oninput="searchEx(this.value)" placeholder="Search...">
-        <div id="searchRes"></div>
-        <div id="setForm" style="display:none;">
-            <b id="curEx"></b>
-            <div id="historyRecall" style="display:none; justify-content:space-between;"><span id="historyRecallText"></span><button onclick="applyProgression('wt')">+2.5%</button></div>
-            <div class="auth-grid"><input type="number" id="numSets" oninput="generateSetInputs()"><button class="btn-sub" onclick="startRestTimer(90)">Timer 90s</button></div>
-            <div id="setInputsContainer"></div>
-            <button class="btn-main" onclick="saveExercise()">Save Set</button>
-        </div>
+        <input type="text" id="logWorkoutName" placeholder="Workout (e.g. Chest)">
+        <button class="btn-main" onclick="quickLog()">Log Session Done</button>
+    </div>
+    <div class="section active">
+        <h2>Progress Report</h2>
+        <button class="btn-info" onclick="generateProgressPDF()">Print PDF</button>
     </div>
 </div>
-
-<div id="restTimerUI"><span id="timerText">01:30</span><button onclick="stopRestTimer()"><i data-feather="x-circle"></i></button></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -401,218 +142,139 @@
     let currentUser = null;
     window.trainerProfile = null;
     window.clients = [];
-    window.shifts = [];
-    window.leads = [];
-    window.expenses = [];
     window.plans = [];
-    window.workoutDB = {
-        "Pull (Back & Biceps)": ["Pull-ups", "Lat Pulldown", "Cable Row", "Barbell Row"],
-        "Push (Chest, Shoulders, Triceps)": ["Bench Press", "Overhead Press", "Lateral Raises", "Triceps Pushdown"],
-        "Legs (Quads, Hams, Glutes)": ["Squats", "Leg Press", "Leg Curls", "Calf Raises"],
-        "Core & Functional": ["Plank", "Leg Raises", "KB Swings"],
-        "Custom Exercises": [] 
-    };
+    window.shifts = [];
 
-    window.today = new Date().toISOString().split('T')[0];
-    window.curID = null; window.curExName = ""; window.lastPerfData = null;
-    window.tonnageChartInst = null; window.audioCtx = null; window.timerInt = null;
-
-    // --- APP CORE START ---
+    // --- AUTH LOGIC ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
-            try {
-                const docRef = doc(db, "trainers", user.uid);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    window.trainerProfile = data.profile || null;
-                    window.clients = data.clients || [];
-                    window.shifts = data.shifts || [];
-                    window.leads = data.leads || [];
-                    window.expenses = data.expenses || [];
-                    window.plans = data.plans || [];
-                    if(data.workoutDB) window.workoutDB = data.workoutDB;
-                    document.getElementById('cloudLoader').style.display = 'none';
-                    if (window.trainerProfile) { window.initApp(); window.render(); } else { window.showSetupForm(user); }
-                } else {
-                    document.getElementById('cloudLoader').style.display = 'none';
-                    window.showSetupForm(user);
-                }
-            } catch (e) { document.getElementById('cloudLoader').style.display = 'none'; alert("Database Error"); }
-        } else {
-            if (window.location.hash.startsWith('#vip=')) {
+            const docSnap = await getDoc(doc(db, "trainers", user.uid));
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                window.trainerProfile = data.profile;
+                window.clients = data.clients || [];
+                window.plans = data.plans || [];
+                window.shifts = data.shifts || [];
                 document.getElementById('cloudLoader').style.display = 'none';
-                document.getElementById('appContainer').style.display = 'none';
-                document.getElementById('authView').style.display = 'none';
-                document.getElementById('vipPortal').style.display = 'block';
-                window.loadVipPortal();
+                initApp();
             } else {
                 document.getElementById('cloudLoader').style.display = 'none';
                 document.getElementById('authView').style.display = 'flex';
-                document.getElementById('loginBlock').style.display = 'block';
+                document.getElementById('loginBlock').style.display = 'none';
+                document.getElementById('setupBlock').style.display = 'block';
             }
+        } else {
+            document.getElementById('cloudLoader').style.display = 'none';
+            document.getElementById('authView').style.display = 'flex';
         }
     });
 
-    window.initApp = () => {
-        document.getElementById('authView').style.display = 'none';
-        document.getElementById('appContainer').style.display = 'block';
-        document.getElementById('headerTrainerName').innerText = `${window.trainerProfile.name.split(' ')[0]}`;
-        document.getElementById('footerTrainerName').innerText = window.trainerProfile.name;
-        document.getElementById('attDate').value = window.today;
-        document.getElementById('attIn').value = window.trainerProfile.shiftIn || "06:00";
-        document.getElementById('attOut').value = window.trainerProfile.shiftOut || "14:00";
-        window.render();
-    };
-
-    window.syncToCloud = async () => {
-        if (!currentUser) return;
-        try {
-            await setDoc(doc(db, "trainers", currentUser.uid), {
-                profile: window.trainerProfile, clients: window.clients, shifts: window.shifts, leads: window.leads, expenses: window.expenses, plans: window.plans, workoutDB: window.workoutDB
-            });
-        } catch (e) { console.error("Sync error", e); }
-    };
-
-    // --- AUTH ---
     window.ryalSignIn = () => signInWithPopup(auth, new GoogleAuthProvider());
     window.ryalSignOut = () => signOut(auth).then(() => location.reload());
-    window.showSetupForm = (user) => {
-        document.getElementById('authView').style.display = 'flex';
-        document.getElementById('loginBlock').style.display = 'none';
-        document.getElementById('setupBlock').style.display = 'block';
-        document.getElementById('authName').value = user.displayName || "";
-        document.getElementById('authEmail').value = user.email || "";
-    };
+
     window.saveTrainerProfile = async () => {
-        window.trainerProfile = {
-            name: document.getElementById('authName').value, email: document.getElementById('authEmail').value,
-            phone: document.getElementById('authPhone').value, salary: parseFloat(document.getElementById('authSalary').value),
-            shiftIn: document.getElementById('authIn').value, shiftOut: document.getElementById('authOut').value
+        const profile = {
+            name: document.getElementById('authName').value,
+            salary: parseFloat(document.getElementById('authSalary').value) || 0,
+            shiftIn: document.getElementById('authIn').value,
+            shiftOut: document.getElementById('authOut').value
         };
-        await window.syncToCloud(); window.initApp();
-    };
-    window.editTrainerProfile = () => {
-        document.getElementById('setupBlock').style.display = 'block';
-        document.getElementById('loginBlock').style.display = 'none';
-        document.getElementById('authView').style.display = 'flex';
-        document.getElementById('appContainer').style.display = 'none';
+        if(!profile.name) return alert("Name required");
+        window.trainerProfile = profile;
+        await syncToCloud();
+        initApp();
     };
 
-    // --- RENDERING ---
-    window.render = () => {
-        window.renderPlanner(); window.renderLeads(); window.renderAttendance();
-        window.renderExpenses(); window.renderRoster(); window.renderRevenue();
-        if (window.feather) window.feather.replace();
+    const initApp = () => {
+        document.getElementById('authView').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'block';
+        document.getElementById('headerTrainerName').innerText = window.trainerProfile.name;
+        document.getElementById('footerTrainerName').innerText = window.trainerProfile.name;
+        render();
     };
 
-    window.renderPlanner = () => {
-        let active = window.clients.filter(c => Object.keys(c.logs).length < c.sess);
-        document.getElementById('planClient').innerHTML = `<option value="">Select Client</option>` + active.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-        let total = 0; let html = window.plans.map(p => {
-            let c = window.clients.find(x => x.id == p.clientId); if(!c) return '';
-            let val = ((c.pay||0)/(1+(c.gst||0))*(c.ret||0))/(c.sess||1); total += val;
-            return `<div class="history-row"><span>${c.name} (${p.date})</span><div class="auth-grid"><button class="btn-action danger" onclick="delPlan(${p.id})">X</button><button class="btn-action" onclick="completePlan(${p.id})">Done</button></div></div>`;
-        }).join('');
-        document.getElementById('planList').innerHTML = html || "No plans";
-        document.getElementById('planEarnings').innerText = `₹${total.toFixed(0)}`;
-    };
-
-    window.renderRoster = () => {
-        let html = ""; let sorted = [...window.clients].sort((a,b) => (a.slot||"").localeCompare(b.slot||""));
-        sorted.forEach(c => {
-            let done = Object.keys(c.logs).length;
-            html += `<tr><td><span class="client-link" onclick="openOv(${c.id})">${c.name}</span></td><td>${window.formatTime(c.slot)}</td><td>${done}/${c.sess}</td><td><button class="btn-action" onclick="toggleHistory(${c.id})">Logs</button></td></tr><tr id="hist-${c.id}" style="display:none;"><td colspan="4"><div class="history-pane">${JSON.stringify(c.logs)}</div></td></tr>`;
+    const syncToCloud = async () => {
+        if (!currentUser) return;
+        await setDoc(doc(db, "trainers", currentUser.uid), {
+            profile: window.trainerProfile,
+            clients: window.clients,
+            plans: window.plans,
+            shifts: window.shifts
         });
-        document.getElementById('rosterView').innerHTML = html;
     };
 
-    window.renderLeads = () => {
-        document.getElementById('leadsList').innerHTML = window.leads.map(l => `<div class="history-row"><span>${l.name}</span><button class="btn-action" onclick="convertLead(${l.id})">Convert</button></div>`).join('') || "No leads";
+    // --- APP LOGIC ---
+    window.render = () => {
+        // Planner
+        const pClient = document.getElementById('planClient');
+        pClient.innerHTML = '<option value="">Select Client</option>' + window.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        
+        let totalPlan = 0;
+        document.getElementById('planList').innerHTML = window.plans.map(p => {
+            let c = window.clients.find(x => x.id == p.clientId);
+            if(!c) return '';
+            totalPlan += (c.pay / c.sess) * 0.4;
+            return `<div class="history-row"><span>${c.name} - ${p.date}</span><button onclick="completePlan(${p.id})">Done</button></div>`;
+        }).join('') || 'No sessions';
+        document.getElementById('planEarnings').innerText = "₹" + totalPlan.toFixed(0);
+
+        // Roster
+        document.getElementById('rosterView').innerHTML = window.clients.map(c => {
+            let done = Object.keys(c.logs || {}).length;
+            return `<tr><td onclick="openOv(${c.id})"><b>${c.name}</b></td><td>${c.slot}</td><td>${done}/${c.sess}</td><td><button onclick="openOv(${c.id})">View</button></td></tr>`;
+        }).join('');
     };
 
-    window.renderAttendance = () => {
-        let mon = document.getElementById('attDate').value.slice(0,7);
-        let list = window.shifts.filter(s => s.date.startsWith(mon));
-        document.getElementById('attList').innerHTML = list.map(s => `<div class="history-row"><span>${s.date}: ${s.status}</span><button class="btn-action danger" onclick="delShift(${s.id})">X</button></div>`).join('') || "No attendance";
-    };
-
-    window.renderExpenses = () => {
-        document.getElementById('expList').innerHTML = window.expenses.map(e => `<div class="history-row"><span>₹${e.amt} - ${e.cat}</span></div>`).join('') || "No expenses";
-    };
-
-    window.renderRevenue = () => {
-        let total = 0; // Simplified
-        document.getElementById('statRevenue').innerText = `₹${total}`;
-        document.getElementById('statSessions').innerText = window.clients.reduce((n,c)=>n+(c.logs[window.today]?1:0),0);
-    };
-
-    // --- LOGIC FUNCTIONS ---
     window.addPlan = async () => {
-        window.plans.push({ id: Date.now(), clientId: document.getElementById('planClient').value, date: document.getElementById('planDate').value, time: document.getElementById('planTime').value, workout: document.getElementById('planWorkout').value });
-        await window.syncToCloud(); window.render();
+        const p = { id: Date.now(), clientId: document.getElementById('planClient').value, date: document.getElementById('planDate').value, workout: document.getElementById('planWorkout').value };
+        if(!p.clientId || !p.date) return alert("Missing info");
+        window.plans.push(p);
+        await syncToCloud(); render();
     };
-    window.delPlan = async (id) => { window.plans = window.plans.filter(p => p.id !== id); await window.syncToCloud(); window.render(); };
+
     window.completePlan = async (id) => {
-        let p = window.plans.find(x => x.id === id); let c = window.clients.find(x => x.id == p.clientId);
-        if(!c.logs[p.date]) c.logs[p.date] = [];
-        c.logs[p.date].push({ id: Date.now(), workoutName: p.workout, name: "Plan Completed", sets: [] });
-        window.plans = window.plans.filter(x => x.id !== id); await window.syncToCloud(); window.render();
+        const p = window.plans.find(x => x.id === id);
+        const c = window.clients.find(x => x.id == p.clientId);
+        if(!c.logs) c.logs = {};
+        c.logs[p.date] = { name: p.workout };
+        window.plans = window.plans.filter(x => x.id !== id);
+        await syncToCloud(); render();
     };
-    window.logAtt = async (status) => {
-        const dr = (window.trainerProfile.salary || 10000) / 30;
-        window.shifts.push({ id: Date.now(), date: document.getElementById('attDate').value, status, pay: status === 'Present' ? dr : 0 });
-        await window.syncToCloud(); window.render();
-    };
-    window.delShift = async (id) => { window.shifts = window.shifts.filter(s => s.id !== id); await window.syncToCloud(); window.render(); };
+
     window.regClient = async () => {
-        window.clients.push({ id: Date.now(), name: document.getElementById('regName').value, slot: document.getElementById('regSlot').value, sess: parseInt(document.getElementById('regSess').value), pay: parseFloat(document.getElementById('regPay').value), ret: parseFloat(document.getElementById('regRet').value), gst: parseFloat(document.getElementById('regGst').value), logs: {}, bca: [], gallery: [] });
-        await window.syncToCloud(); window.render();
+        const c = { id: Date.now(), name: document.getElementById('regName').value, sess: parseInt(document.getElementById('regSess').value), pay: parseFloat(document.getElementById('regPay').value), slot: document.getElementById('regSlot').value, logs: {} };
+        window.clients.push(c);
+        await syncToCloud(); render();
     };
-    window.addLead = async () => { window.leads.push({ id: Date.now(), name: document.getElementById('leadName').value }); await window.syncToCloud(); window.render(); };
-    window.addExpense = async () => { window.expenses.push({ id: Date.now(), amt: parseFloat(document.getElementById('expAmt').value), cat: document.getElementById('expCat').value }); await window.syncToCloud(); window.render(); };
 
-    // --- MODALS & UTILS ---
-    window.toggleSec = (id) => document.getElementById(id).classList.toggle('active');
-    window.toggleGroup = (id, el) => { let d = document.getElementById(id); d.style.display = d.style.display === 'none' ? 'block' : 'none'; };
-    window.formatTime = (t) => { if(!t) return '-'; let [h,m] = t.split(':'); let am = h>=12?'PM':'AM'; return `${h%12||12}:${m} ${am}`; };
-    window.showAlert = (msg) => alert(msg);
-    window.showConfirm = (msg, cb) => { if(confirm(msg)) cb(); };
+    window.openOv = (id) => {
+        window.curID = id;
+        const c = window.clients.find(x => x.id === id);
+        document.getElementById('ovName').innerText = c.name;
+        document.getElementById('clientOverlay').style.display = 'block';
+    };
 
-    // --- VIP & PROGRESS (Corrected Strings) ---
-    window.encodeToHash = (obj) => btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
-    window.decodeFromHash = (h) => JSON.parse(decodeURIComponent(escape(atob(h))));
-
-    window.generateVIPLink = () => {
+    window.quickLog = async () => {
+        const date = document.getElementById('logDate').value;
         const c = window.clients.find(x => x.id === window.curID);
-        const payload = window.encodeToHash({ n: c.name, tdee: c.tdee, tName: window.trainerProfile.name });
-        prompt("Copy Link:", window.location.href.split('#')[0] + '#vip=' + payload);
-    };
-
-    window.loadVipPortal = () => {
-        const data = window.decodeFromHash(window.location.hash.replace('#vip=', ''));
-        document.getElementById('vipName').innerText = data.n;
-        document.getElementById('vipCal').innerText = data.tdee || "-";
+        if(!date) return alert("Select Date");
+        if(!c.logs) c.logs = {};
+        c.logs[date] = { name: document.getElementById('logWorkoutName').value };
+        await syncToCloud(); render();
+        alert("Session Logged!");
     };
 
     window.generateProgressPDF = () => {
         const c = window.clients.find(x => x.id === window.curID);
-        let win = window.open('', '_blank');
-        win.document.write('<html><body><h1>Progress Report: ' + c.name + '</h1></body></html>');
+        const win = window.open('', '_blank');
+        win.document.write('<html><body><h1>Client: ' + c.name + '</h1><p>Sessions Completed: ' + Object.keys(c.logs).length + '</p></body></html>');
         win.document.close();
         win.print();
     };
 
-    // Mapping window functions explicitly for the HTML buttons
-    window.ryalSignIn = window.ryalSignIn;
-    window.ryalSignOut = window.ryalSignOut;
-    window.saveTrainerProfile = window.saveTrainerProfile;
-    window.editTrainerProfile = window.editTrainerProfile;
-    window.openOv = window.openOv;
-    window.regClient = window.regClient;
-    window.logAtt = window.logAtt;
-    window.addPlan = window.addPlan;
+    window.toggleSec = (id) => document.getElementById(id).classList.toggle('active');
+    window.toggleTheme = () => document.body.classList.toggle('dark-mode');
 </script>
 </body>
 </html>
