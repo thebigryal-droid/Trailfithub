@@ -1156,7 +1156,7 @@
         const url = window.location.href.split('#')[0] + '#vip=' + payload; navigator.clipboard.writeText(url); window.showAlert("VIP Link copied! It now automatically includes YouTube video guides for their most recent workout.");
     };
 
-        window.generateProgressPDF = () => {
+    window.generateProgressPDF = () => {
         const c = window.clients.find(x => x.id === window.curID); 
         if(!c.bca || c.bca.length < 1) { window.showAlert("You need at least 1 saved BCA log to generate a report."); return; }
         
