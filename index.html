@@ -176,7 +176,6 @@
 
 <script>
     window.onerror = function(message, source, lineno, colno, error) {
-        // Prevent random unhandled errors from breaking the UI fully
         console.error("System Error:", message, lineno, error);
         const loader = document.getElementById('cloudLoader');
         if(loader) loader.style.display = 'none';
@@ -838,10 +837,13 @@
         const menu = document.getElementById('sideMenu');
         const overlay = document.getElementById('menuOverlay');
         if(menu.classList.contains('open')) {
-            menu.classList.remove('open'); overlay.classList.remove('open');
+            menu.classList.remove('open'); 
+            overlay.classList.remove('open');
+            document.body.style.overflow = ''; // Allow scrolling again
             setTimeout(()=> overlay.style.display = 'none', 300);
         } else {
             overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent scrolling while open
             setTimeout(()=> { menu.classList.add('open'); overlay.classList.add('open'); }, 10);
         }
     };
@@ -850,6 +852,7 @@
         document.getElementById('sideMenu').classList.remove('open');
         const overlay = document.getElementById('menuOverlay');
         overlay.classList.remove('open');
+        document.body.style.overflow = ''; // Allow scrolling again
         setTimeout(()=> overlay.style.display = 'none', 300);
     };
 
@@ -1360,7 +1363,8 @@
     window.initApp = () => {
         document.getElementById('authView').style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';
-        document.getElementById('headerTrainerName').innerText = `${window.trainerProfile.name.split(' ')[0]}`;
+        
+        // This is the bug fix: The ID is now menuTrainerName
         document.getElementById('menuTrainerName').innerText = `${window.trainerProfile.name.split(' ')[0]}`;
         
         document.getElementById('attDate').value = window.today; document.getElementById('logDate').value = window.today;
@@ -1368,7 +1372,6 @@
         document.getElementById('reportMonthInput').value = window.today.slice(0, 7); 
         if(!document.getElementById('attIn').value) document.getElementById('attIn').value = window.trainerProfile.shiftIn || "06:00";
         if(!document.getElementById('attOut').value) document.getElementById('attOut').value = window.trainerProfile.shiftOut || "14:00";
-        
         document.querySelectorAll('.section').forEach((el, index) => { el.style.animationDelay = `${index * 0.05}s`; });
     };
 
@@ -1796,111 +1799,6 @@
         await window.syncToCloud(); 
         document.getElementById('mbName').value = ""; 
         window.renderMealBuilder(); 
-    };
-    
-    // --- MOBILITY LOGIC ---
-    window.saveMobility = async () => {
-        const c = window.clients.find(x => x.id === window.curID);
-        if(!c.mobility) c.mobility = [];
-        
-        const d = document.getElementById('mobDate').value || window.today;
-        const muscle = document.getElementById('mobMuscle').value;
-        const ex = document.getElementById('mobExercise').value;
-        const time = parseInt(document.getElementById('mobTime').value) || 0;
-        const sets = parseInt(document.getElementById('mobSets').value) || 1;
-        
-        if(!muscle || !ex) { window.showAlert("Target Muscle and Exercise are required."); return; }
-        
-        c.mobility.push({ id: Date.now(), date: d, muscle, exercise: ex, time, sets });
-        c.mobility.sort((a,b) => new Date(b.date) - new Date(a.date));
-        
-        document.getElementById('mobMuscle').value = "";
-        document.getElementById('mobExercise').value = "";
-        document.getElementById('mobTime').value = "";
-        document.getElementById('mobSets').value = "";
-        
-        await window.syncToCloud();
-        window.renderMobility();
-    };
-
-    window.renderMobility = () => {
-        const c = window.clients.find(x => x.id === window.curID);
-        const list = document.getElementById('mobList');
-        
-        if(!c.mobility || c.mobility.length === 0) { list.style.display = 'none'; return; }
-        
-        list.style.display = 'block';
-        
-        let htmlStr = "";
-        c.mobility.forEach(log => {
-            htmlStr += `<div class="history-row bg-override" style="background:var(--card); padding:12px; border-radius:10px; border:1px solid var(--border); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="flex:1;">
-                    <div style="display:flex; justify-content:space-between;">
-                        <b style="font-size:13px; color:var(--text);">${log.muscle}: ${log.exercise}</b>
-                        <span style="font-size:11px; font-weight:800; color:var(--text-muted);">${log.date}</span>
-                    </div>
-                    <div style="font-size:11px; color:var(--text-muted); margin-top:4px; font-weight:600;">Hold: ${log.time}s &nbsp;|&nbsp; Sets: ${log.sets}</div>
-                </div>
-                <button class="btn-action danger" style="margin-left:10px;" onclick="delMobility(${log.id})"><i data-feather="trash-2" class="icon" style="margin:0;"></i></button>
-            </div>`;
-        });
-        list.innerHTML = htmlStr;
-        if(window.feather) setTimeout(() => window.feather.replace(), 10);
-    };
-
-    window.delMobility = (id) => {
-        window.showConfirm("Delete this mobility log?", async () => {
-            const c = window.clients.find(x => x.id === window.curID);
-            c.mobility = c.mobility.filter(log => log.id !== id);
-            await window.syncToCloud();
-            window.renderMobility();
-        });
-    };
-
-    // --- NEW: AI EXERCISE GENERATOR ---
-    window.generateAIExercises = async (isRefresh = false) => {
-        const apiKey = localStorage.getItem('ryal_ai_key');
-        if(!apiKey) { window.showAlert("Please add your Gemini API Key in your Profile Settings first!"); return; }
-        
-        const input = document.getElementById('aiWorkoutInput').value;
-        if(!input) { window.showAlert("Type a muscle group or goal first!"); return; }
-        
-        const btn = isRefresh ? document.getElementById('aiRefreshBtn') : document.getElementById('aiGenerateBtn');
-        const originalHtml = btn.innerHTML;
-        btn.innerHTML = `<i data-feather="loader" style="animation:spin 1s linear infinite;"></i>`;
-        if(window.feather) setTimeout(() => window.feather.replace(), 10);
-        
-        let extra = isRefresh ? "Provide 6 completely different, unique or advanced exercises for this. " : "";
-        const prompt = `Act as an expert fitness coach. ${extra}Provide exactly 6 exercises for: ${input}. 
-        Return ONLY a comma-separated list of the exercise names. No bullet points, no extra text, no asterisks. Example: Bench Press, Push Up, Cable Fly, Dips, Dumbbell Press, Pec Deck`;
-        
-        try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
-            const data = await response.json();
-            if(data.error) throw new Error(data.error.message);
-            
-            let text = data.candidates[0].content.parts[0].text.trim();
-            let exercises = text.split(',').map(e => e.trim()).filter(e => e);
-            
-            let htmlStr = "";
-            exercises.forEach(ex => {
-                htmlStr += `<div class="ex-tag" onclick="selSplitEx('${ex}', this)">${ex}</div>`;
-            });
-            
-            document.getElementById('splitSelect').value = "";
-            document.getElementById('exTagsContainer').innerHTML = htmlStr;
-            document.getElementById('setForm').style.display = 'none';
-            
-        } catch(e) {
-            window.showAlert("AI Fetch Failed: " + e.message);
-        } finally {
-            btn.innerHTML = originalHtml;
-            if(window.feather) setTimeout(() => window.feather.replace(), 10);
-        }
     };
 
     // --- WORKOUT LOGGING LOGIC ---
