@@ -40,20 +40,21 @@
         #cloudLoader { position: fixed; inset: 0; background: var(--bg); z-index: 50000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text); font-weight: 800; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; transition: opacity 0.4s; }
         .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
 
-        /* Menu Styles */
+                 /* Menu Styles */
         #menuOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 59999; display: none; opacity: 0; transition: opacity 0.3s; backdrop-filter: blur(3px); }
         #menuOverlay.open { display: block; opacity: 1; }
-        #sideMenu { position: fixed; top: 0; left: -280px; width: 260px; height: 100vh; background: var(--card); z-index: 60000; box-shadow: 4px 0 20px rgba(0,0,0,0.3); transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+        #sideMenu { position: fixed; top: 0; bottom: 0; left: -280px; width: 260px; height: 100%; background: var(--card); z-index: 60000; box-shadow: 4px 0 20px rgba(0,0,0,0.3); transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-right: 1px solid var(--border); }
         #sideMenu.open { left: 0; }
-        .menu-header { padding: 30px 20px 20px; border-bottom: 1px solid var(--border); }
+        .menu-header { padding: 30px 20px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
         .menu-header h3 { margin: 0; font-size: 18px; color: var(--text); font-weight: 800; letter-spacing: -0.5px; }
         .trainer-badge { display: inline-block; background: rgba(195, 245, 60, 0.2); color: var(--primary-dark); padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-top: 8px; border: 1px solid rgba(195, 245, 60, 0.3); }
         body.dark-mode .trainer-badge { color: var(--primary); }
-        .menu-links { padding: 15px 0; flex: 1; overflow-y: auto; }
+        .menu-links { padding: 15px 0; flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .menu-links a { display: flex; align-items: center; padding: 14px 20px; color: var(--text); text-decoration: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s, color 0.2s; }
         .menu-links a:hover { background: var(--bg); color: var(--primary); }
         .menu-links a i { margin-right: 15px; color: var(--text-muted); width: 18px; }
-        .menu-footer { padding: 20px; border-top: 1px solid var(--border); background: var(--bg); }
+        .menu-footer { padding: 20px; border-top: 1px solid var(--border); background: var(--bg); flex-shrink: 0; }
+
 
         #appContainer { padding: 0 15px 80px; display: none; animation: fadeIn 0.5s ease-out forwards; }
 
