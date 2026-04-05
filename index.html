@@ -1551,10 +1551,19 @@
         const [inH, inM] = inT.split(':').map(Number); const [outH, outM] = outT.split(':').map(Number); const totalMins = (outH * 60 + outM) - (inH * 60 + inM);
         let isLate = false; let isHalfDay = false;
         if (status === 'Present' && totalMins > 0) { if (totalMins <= 240) isHalfDay = true; else if (totalMins < 420) isLate = true; }
+        
         const dailyRate = (window.trainerProfile.salary || 10000) / new Date(parseInt(d.split('-')[0]), parseInt(d.split('-')[1]), 0).getDate();
-        window.shifts.push({ id: Date.now(), date: d, inTime: inT, outTime: outT, status, isLate, isHalfDay, pay: (status === 'Present' || status === 'Week Off') ? dailyRate : 0 });
+        
+        // Calculate the ACTUAL take-home pay for this shift
+        let actualPay = (status === 'Present' || status === 'Week Off') ? dailyRate : 0;
+        if (status === 'Present' && (isLate || isHalfDay)) {
+            actualPay = dailyRate * 0.5; // Dock 50%
+        }
+        
+        window.shifts.push({ id: Date.now(), date: d, inTime: inT, outTime: outT, status, isLate, isHalfDay, pay: actualPay });
         await window.syncToCloud(); window.render();
     };
+
 
     window.delShift = (id) => { window.showConfirm("Delete this shift record?", async () => { window.shifts = window.shifts.filter(s => s.id !== id); await window.syncToCloud(); window.render(); }); };
 
@@ -2077,12 +2086,27 @@
         let clientRowsHtml = ''; let sr = 1; let totalPtEarnedThisMonth = 0;
         window.clients.forEach(c => { let doneThisMonth = Object.keys(c.logs || {}).filter(d => d.startsWith(mStr)).length; let doneTotal = Object.keys(c.logs || {}).length; if(doneThisMonth > 0 || (c.startDate && c.startDate.startsWith(mStr))) { let remSess = Math.max(0, (c.sess || 0) - doneTotal); let amtPerSess = ((c.pay||0)/(1+(c.gst||0))*(c.ret||0))/(c.sess||1); let earnedThisMonth = amtPerSess * doneThisMonth; totalPtEarnedThisMonth += earnedThisMonth; clientRowsHtml += `<tr><td>${sr++}</td><td><b>${c.name}</b></td><td>${c.receipt || '-'}</td><td>₹${c.pay || 0}</td><td>${c.startDate || '-'}</td><td>${c.endDate || '-'}</td><td>${c.sess || 0}</td><td style="background:#3b82f6; color:white; font-weight:bold;">${doneThisMonth}</td><td>${remSess}</td><td>₹${amtPerSess.toFixed(2)}</td><td style="color:#3b82f6; font-weight:bold;">₹${earnedThisMonth.toFixed(2)}</td></tr>`; } });
         if(clientRowsHtml === '') clientRowsHtml = `<tr><td colspan="11" style="text-align:center; padding:20px; color:#86868b;">No active client sessions recorded for this month.</td></tr>`;
+        
         let shiftRowsHtml = ''; let daysWorked = 0; let daysLate = 0; let daysWeekOff = 0; let daysAbsent = 0; let totalSalEarned = 0;
-        window.shifts.filter(s => s.date.startsWith(mStr)).sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(s => { if(s.status === 'Present') daysWorked++; if(s.isLate) daysLate++; if(s.status === 'Week Off') daysWeekOff++; if(s.status === 'Absent') daysAbsent++; let hrs = 0; if(s.inTime && s.outTime) { let [inH, inM] = s.inTime.split(':').map(Number); let [outH, outM] = s.outTime.split(':').map(Number); hrs = ((outH * 60 + outM) - (inH * 60 + inM)) / 60; } totalSalEarned += (s.pay || 0); let statusLabel = s.status; if(s.isLate) statusLabel += ' (Late)'; if(s.isHalfDay) statusLabel += ' (Half Day)'; shiftRowsHtml += `<tr><td>${s.date}</td><td>${statusLabel}</td><td>${window.formatTime(s.inTime) || '-'}</td><td>${window.formatTime(s.outTime) || '-'}</td><td>${hrs.toFixed(1)} hrs</td><td>₹${(s.pay || 0).toFixed(2)}</td></tr>`; });
+        window.shifts.filter(s => s.date.startsWith(mStr)).sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(s => { 
+            if(s.status === 'Present') daysWorked++; if(s.isLate) daysLate++; if(s.status === 'Week Off') daysWeekOff++; if(s.status === 'Absent') daysAbsent++; 
+            let hrs = 0; if(s.inTime && s.outTime) { let [inH, inM] = s.inTime.split(':').map(Number); let [outH, outM] = s.outTime.split(':').map(Number); hrs = ((outH * 60 + outM) - (inH * 60 + inM)) / 60; } 
+            
+            // Fix for old logs on the PDF
+            let dailyRate = (window.trainerProfile.salary || 10000) / new Date(parseInt(s.date.split('-')[0]), parseInt(s.date.split('-')[1]), 0).getDate();
+            let actualPay = s.pay || 0;
+            if ((s.isLate || s.isHalfDay) && actualPay >= dailyRate - 1) { actualPay = dailyRate * 0.5; }
+            totalSalEarned += actualPay; 
+            
+            let statusLabel = s.status; if(s.isLate) statusLabel += ' (Late)'; if(s.isHalfDay) statusLabel += ' (Half Day)'; 
+            shiftRowsHtml += `<tr><td>${s.date}</td><td>${statusLabel}</td><td>${window.formatTime(s.inTime) || '-'}</td><td>${window.formatTime(s.outTime) || '-'}</td><td>${hrs.toFixed(1)} hrs</td><td>₹${actualPay.toFixed(2)}</td></tr>`; 
+        });
+        
         if(shiftRowsHtml === '') shiftRowsHtml = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#86868b;">No attendance shifts logged for this month.</td></tr>`;
         let expRowsHtml = ''; let totalExpThisMonth = 0;
         window.expenses.filter(e => e.date.startsWith(mStr)).sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(e => { totalExpThisMonth += e.amt; expRowsHtml += `<tr><td>${e.date}</td><td><b>${e.cat}</b></td><td>${e.desc || '-'}</td><td style="color:#ef4444; font-weight:bold;">₹${e.amt.toFixed(2)}</td></tr>`; });
         if(expRowsHtml === '') expRowsHtml = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#86868b;">No expenses logged for this month.</td></tr>`;
+        
         let finalNet = (totalPtEarnedThisMonth + totalSalEarned) - totalExpThisMonth;
         let printWindow = window.open('', '_blank');
         
@@ -2102,6 +2126,7 @@
         printWindow.document.write(htmlString);
         printWindow.document.close();
     };
+
 
 </script>
 </body>
