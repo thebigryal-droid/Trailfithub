@@ -1460,21 +1460,57 @@
 
     window.renderRevenue = () => {
         let mData = {}; let todayRev = 0;
-        window.shifts.forEach(s => { let m=s.date.slice(0,7); if(!mData[m]) mData[m]={sal:0,pt:0,pen:0, exp:0, daily:{}}; mData[m].sal += s.pay||0; if(!mData[m].daily[s.date]) mData[m].daily[s.date] = {sal:0,pt:0,pen:0}; mData[m].daily[s.date].sal += s.pay||0; if(s.isLate||s.isHalfDay) { let dailyRate = (window.trainerProfile.salary || 10000) / new Date(parseInt(s.date.split('-')[0]), parseInt(s.date.split('-')[1]), 0).getDate(); let p = dailyRate * 0.5; mData[m].pen += p; mData[m].daily[s.date].pen += p; } if(s.date === window.today) todayRev += s.pay||0; });
+        window.shifts.forEach(s => { 
+            let m=s.date.slice(0,7); 
+            if(!mData[m]) mData[m]={sal:0,pt:0,pen:0, exp:0, daily:{}}; 
+            
+            let dailyRate = (window.trainerProfile.salary || 10000) / new Date(parseInt(s.date.split('-')[0]), parseInt(s.date.split('-')[1]), 0).getDate(); 
+            let actualPay = s.pay || 0;
+            let penaltyAmount = 0;
+
+            // Backward compatibility for old logs that had full pay but were half-days
+            if ((s.isLate || s.isHalfDay) && actualPay >= dailyRate - 1) {
+                actualPay = dailyRate * 0.5;
+                penaltyAmount = dailyRate * 0.5;
+            } else if (actualPay < dailyRate && (s.status === 'Present' || s.status === 'Week Off')) {
+                penaltyAmount = dailyRate - actualPay;
+            }
+
+            mData[m].sal += actualPay; 
+            mData[m].pen += penaltyAmount;
+            
+            if(!mData[m].daily[s.date]) mData[m].daily[s.date] = {sal:0,pt:0,pen:0}; 
+            mData[m].daily[s.date].sal += actualPay; 
+            mData[m].daily[s.date].pen += penaltyAmount;
+
+            if(s.date === window.today) todayRev += actualPay; 
+        });
+        
         window.clients.forEach(c => { let pt = ((c.pay||0)/(1+(c.gst||0))*(c.ret||0))/(c.sess||1); Object.keys(c.logs || {}).forEach(d => { if(c.logs[d].length>0) { let m=d.slice(0,7); if(!mData[m]) mData[m]={sal:0,pt:0,pen:0, exp:0, daily:{}}; mData[m].pt += pt; if(!mData[m].daily[d]) mData[m].daily[d] = {sal:0,pt:0,pen:0}; mData[m].daily[d].pt += pt; if(d === window.today) todayRev += pt; } }); });
         window.expenses.forEach(e => { let m=e.date.slice(0,7); if(!mData[m]) mData[m]={sal:0,pt:0,pen:0, exp:0, daily:{}}; mData[m].exp += e.amt; });
         
         let revHtml = "";
         Object.keys(mData).sort().reverse().forEach(m => { 
-            let net = mData[m].sal + mData[m].pt - mData[m].pen - mData[m].exp; let dailyHtml = ""; let sortedDays = Object.keys(mData[m].daily).sort().reverse(); 
-            if(sortedDays.length > 0) { dailyHtml = `<div style="margin-top:15px; border-top:1px dashed var(--border); padding-top:15px;"><div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Daily Breakdown (Excl. Expenses)</div>`; sortedDays.forEach(d => { let dayData = mData[m].daily[d]; let dayNet = dayData.sal + dayData.pt - dayData.pen; dailyHtml += `<div style="display:flex; justify-content:space-between; font-size:12px; padding:8px 0; border-bottom:1px solid var(--bg);"><span style="font-weight:600;"><i data-feather="calendar" class="icon" style="color:var(--text-muted);"></i> <span style="color:var(--text);">${d}</span></span><span style="font-weight:800; color:${dayNet < 0 ? 'var(--danger)' : 'var(--text)'};">₹${dayNet.toFixed(0)}</span></div>`; }); dailyHtml += `</div>`; } 
-            revHtml += `<div style="background:var(--card); border:1px solid var(--border); border-radius:14px; margin-bottom:12px; padding:0 15px; transition:transform 0.2s; box-shadow:0 4px 10px rgba(0,0,0,0.02);" onmouseover="this.style.transform='scale(1.01)'" onmouseout="this.style.transform='scale(1)'"><div class="rev-month" onclick="toggleGroup('rev-split-${m}', this)" style="cursor:pointer; border-bottom:none; margin-top:0; padding:15px 0;"><span style="display:flex; align-items:center; gap:10px;"><i data-feather="calendar" class="icon" style="color:var(--text-muted); width:18px; height:18px;"></i> ${m}</span><div style="display:flex; align-items:center; gap:10px;"><span style="color:${net<0?'var(--danger)':'var(--primary)'}; font-size:18px;">₹${net.toFixed(0)}</span><i data-feather="chevron-down" class="icon" style="color:var(--text-muted); transition:0.3s;"></i></div></div><div id="rev-split-${m}" class="rev-split" style="display:none; padding-bottom:15px; border-top:1px solid var(--border); margin-top:0; padding-top:15px; flex-direction:column;"><div style="display:flex; gap:15px; flex-wrap:wrap; background:var(--bg); padding:12px; border-radius:10px;"><span><i data-feather="dollar-sign" class="icon" style="color:var(--text-muted);"></i> SAL: <b style="color:var(--text);">₹${mData[m].sal.toFixed(0)}</b></span><span><i data-feather="users" class="icon" style="color:var(--text-muted);"></i> PT: <b style="color:var(--text);">₹${mData[m].pt.toFixed(0)}</b></span><span style="color:var(--danger)"><i data-feather="alert-circle" class="icon"></i> PEN: <b>-₹${mData[m].pen.toFixed(0)}</b></span><span style="color:var(--danger)"><i data-feather="credit-card" class="icon"></i> EXP: <b>-₹${mData[m].exp.toFixed(0)}</b></span></div>${dailyHtml}</div></div>`; 
+            let net = mData[m].sal + mData[m].pt - mData[m].exp; 
+            let dailyHtml = ""; let sortedDays = Object.keys(mData[m].daily).sort().reverse(); 
+            if(sortedDays.length > 0) { 
+                dailyHtml = `<div style="margin-top:15px; border-top:1px dashed var(--border); padding-top:15px;"><div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Daily Breakdown (Excl. Expenses)</div>`; 
+                sortedDays.forEach(d => { 
+                    let dayData = mData[m].daily[d]; 
+                    let dayNet = dayData.sal + dayData.pt; 
+                    dailyHtml += `<div style="display:flex; justify-content:space-between; font-size:12px; padding:8px 0; border-bottom:1px solid var(--bg);"><span style="font-weight:600;"><i data-feather="calendar" class="icon" style="color:var(--text-muted);"></i> <span style="color:var(--text);">${d}</span></span><span style="font-weight:800; color:${dayNet < 0 ? 'var(--danger)' : 'var(--text)'};">₹${dayNet.toFixed(0)}</span></div>`; 
+                }); 
+                dailyHtml += `</div>`; 
+            } 
+            let grossSal = mData[m].sal + mData[m].pen;
+            revHtml += `<div style="background:var(--card); border:1px solid var(--border); border-radius:14px; margin-bottom:12px; padding:0 15px; transition:transform 0.2s; box-shadow:0 4px 10px rgba(0,0,0,0.02);" onmouseover="this.style.transform='scale(1.01)'" onmouseout="this.style.transform='scale(1)'"><div class="rev-month" onclick="toggleGroup('rev-split-${m}', this)" style="cursor:pointer; border-bottom:none; margin-top:0; padding:15px 0;"><span style="display:flex; align-items:center; gap:10px;"><i data-feather="calendar" class="icon" style="color:var(--text-muted); width:18px; height:18px;"></i> ${m}</span><div style="display:flex; align-items:center; gap:10px;"><span style="color:${net<0?'var(--danger)':'var(--primary)'}; font-size:18px;">₹${net.toFixed(0)}</span><i data-feather="chevron-down" class="icon" style="color:var(--text-muted); transition:0.3s;"></i></div></div><div id="rev-split-${m}" class="rev-split" style="display:none; padding-bottom:15px; border-top:1px solid var(--border); margin-top:0; padding-top:15px; flex-direction:column;"><div style="display:flex; gap:15px; flex-wrap:wrap; background:var(--bg); padding:12px; border-radius:10px;"><span><i data-feather="dollar-sign" class="icon" style="color:var(--text-muted);"></i> GROSS SAL: <b style="color:var(--text);">₹${grossSal.toFixed(0)}</b></span><span><i data-feather="users" class="icon" style="color:var(--text-muted);"></i> PT: <b style="color:var(--text);">₹${mData[m].pt.toFixed(0)}</b></span><span style="color:var(--danger)"><i data-feather="alert-circle" class="icon"></i> PEN: <b>-₹${mData[m].pen.toFixed(0)}</b></span><span style="color:var(--danger)"><i data-feather="credit-card" class="icon"></i> EXP: <b>-₹${mData[m].exp.toFixed(0)}</b></span></div>${dailyHtml}</div></div>`; 
         });
         document.getElementById('revView').innerHTML = revHtml || "<div style='font-size:13px; color:var(--text-muted); text-align:center; padding:10px;'>No financial data yet.</div>";
         document.getElementById('statRevenue').innerText = `₹${todayRev.toFixed(0)}`;
         document.getElementById('statSessions').innerText = window.clients.reduce((count, c) => count + (c.logs && c.logs[window.today] && c.logs[window.today].length > 0 ? 1 : 0), 0);
         document.getElementById('statShift').innerText = window.shifts.find(x => x.date === window.today)?.status || "-";
     };
+
 
     window.showAlert = (msg) => {
         return new Promise(resolve => {
